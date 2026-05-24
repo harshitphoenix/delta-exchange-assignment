@@ -36,7 +36,7 @@ This plan is structured around the four grading criteria. Every architectural de
 
 Reference layout (dark terminal aesthetic, matching existing `globals.css` tokens):
 
-![Dashboard layout — ticker bar, order book, and recent trades](./assets/dashboard-layout.png)
+![Dashboard layout — ticker bar, order book, and recent trades](./src/assets/dashboard-layout.png)
 
 *Section 1: ticker strip (`v2/ticker`, ~12–30 msgs/sec). Section 2: order book (`l2_orderbook`, 50–100 ms). Section 3: recent trades (`all_trades`, 10–40 ms).*
 
