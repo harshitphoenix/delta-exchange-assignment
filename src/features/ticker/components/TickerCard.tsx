@@ -2,9 +2,9 @@ import { memo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { SYMBOL_CONFIG, type TradingSymbol } from '@/lib/symbols/config';
 import { formatPriceWithPrecision, formatChangePercent } from '@/lib/format';
-import { useWsClient } from '@/components/providers/StressWsProvider';
 import { useTickerStore } from '@/lib/stores/ticker/ticker.store';
 import { setTicker } from '@/lib/stores/ticker/ticker.actions';
+import { StressWsClient } from '@/lib/stress-ws/client';
 
 interface TickerCardProps {
   symbol: TradingSymbol;
@@ -13,7 +13,7 @@ interface TickerCardProps {
 }
 
 export const TickerCard = memo(function TickerCard({ symbol, isFocused, onClick }: TickerCardProps) {
-  const client = useWsClient();
+  const client = StressWsClient.getInstance();
   const snapshot = useTickerStore((s) => s.bySymbol[symbol]);
   const config = SYMBOL_CONFIG[symbol];
 
@@ -21,14 +21,11 @@ export const TickerCard = memo(function TickerCard({ symbol, isFocused, onClick 
     client.subscribe('v2/ticker', [symbol]);
 
     const unsub = client.on('v2/ticker', (raw) => {
-      console.log({raw})
       const msg = raw as Record<string, unknown>;
       if (msg.symbol !== symbol) return;
 
       const lastPrice = (msg.close ?? msg.mark_price) as  string;
       const changePercent24h = msg.ltp_change_24h as string;
-      // if (typeof lastPrice !== 'number' || typeof changePercent24h !== 'number') return;
-
       setTicker({ symbol, lastPrice, changePercent24h });
     });
 

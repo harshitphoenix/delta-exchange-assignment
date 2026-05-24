@@ -3,12 +3,9 @@ import { SYMBOLS, type TradingSymbol } from '@/lib/symbols/config';
 import { useFocusStore } from '@/lib/stores/focus/focus.store';
 import { setFocusedSymbol } from '@/lib/stores/focus/focus.actions';
 import { TickerCard } from './TickerCard';
-import { useTickerStore } from '@/lib/stores/ticker/ticker.store';
 
 export function TickerBar() {
   const focusedSymbol = useFocusStore((s) => s.focusedSymbol);
-  const tickerData = useTickerStore((s) => s.bySymbol);
-  console.log({tickerData});
   const handleClick = useCallback((symbol: TradingSymbol) => {
     setFocusedSymbol(symbol);
   }, []);
