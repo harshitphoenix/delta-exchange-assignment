@@ -1,19 +1,26 @@
-import { useState } from 'react';
-import { DUMMY_TICKERS } from '../data/dummy';
-import type { TradingSymbol } from '../types';
+import { useCallback } from 'react';
+import { SYMBOLS, type TradingSymbol } from '@/lib/symbols/config';
+import { useFocusStore } from '@/lib/stores/focus/focus.store';
+import { setFocusedSymbol } from '@/lib/stores/focus/focus.actions';
 import { TickerCard } from './TickerCard';
+import { useTickerStore } from '@/lib/stores/ticker/ticker.store';
 
 export function TickerBar() {
-  const [focused, setFocused] = useState<TradingSymbol>('BTCUSD');
+  const focusedSymbol = useFocusStore((s) => s.focusedSymbol);
+  const tickerData = useTickerStore((s) => s.bySymbol);
+  console.log({tickerData});
+  const handleClick = useCallback((symbol: TradingSymbol) => {
+    setFocusedSymbol(symbol);
+  }, []);
 
   return (
     <nav className="flex gap-1 overflow-x-auto rounded-md border border-border bg-card px-2 py-1">
-      {DUMMY_TICKERS.map((ticker) => (
+      {SYMBOLS.map((symbol) => (
         <TickerCard
-          key={ticker.symbol}
-          snapshot={ticker}
-          isFocused={ticker.symbol === focused}
-          onClick={() => setFocused(ticker.symbol)}
+          key={symbol}
+          symbol={symbol}
+          isFocused={symbol === focusedSymbol}
+          onClick={() => handleClick(symbol)}
         />
       ))}
     </nav>

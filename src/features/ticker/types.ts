@@ -4,6 +4,6 @@ export type { TradingSymbol };
 
 export interface TickerSnapshot {
   symbol: TradingSymbol;
-  lastPrice: number;
-  changePercent24h: number;
+  lastPrice: string;
+  changePercent24h: string;
 }

@@ -1,18 +1,44 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { SYMBOL_CONFIG } from '@/lib/symbols/config';
+import { SYMBOL_CONFIG, type TradingSymbol } from '@/lib/symbols/config';
 import { formatPriceWithPrecision, formatChangePercent } from '@/lib/format';
-import type { TickerSnapshot } from '../types';
+import { useWsClient } from '@/components/providers/StressWsProvider';
+import { useTickerStore } from '@/lib/stores/ticker/ticker.store';
+import { setTicker } from '@/lib/stores/ticker/ticker.actions';
 
 interface TickerCardProps {
-  snapshot: TickerSnapshot;
+  symbol: TradingSymbol;
   isFocused: boolean;
   onClick: () => void;
 }
 
-export const TickerCard = memo(function TickerCard({ snapshot, isFocused, onClick }: TickerCardProps) {
-  const config = SYMBOL_CONFIG[snapshot.symbol];
-  const isPositive = snapshot.changePercent24h >= 0;
+export const TickerCard = memo(function TickerCard({ symbol, isFocused, onClick }: TickerCardProps) {
+  const client = useWsClient();
+  const snapshot = useTickerStore((s) => s.bySymbol[symbol]);
+  const config = SYMBOL_CONFIG[symbol];
+
+  useEffect(() => {
+    client.subscribe('v2/ticker', [symbol]);
+
+    const unsub = client.on('v2/ticker', (raw) => {
+      console.log({raw})
+      const msg = raw as Record<string, unknown>;
+      if (msg.symbol !== symbol) return;
+
+      const lastPrice = (msg.close ?? msg.mark_price) as  string;
+      const changePercent24h = msg.ltp_change_24h as string;
+      // if (typeof lastPrice !== 'number' || typeof changePercent24h !== 'number') return;
+
+      setTicker({ symbol, lastPrice, changePercent24h });
+    });
+
+    return () => {
+      unsub();
+      client.unsubscribe('v2/ticker', [symbol]);
+    };
+  }, [ symbol]);
+
+  const isPositive = (Number(snapshot?.changePercent24h) ?? 0) >= 0;
 
   return (
     <button
@@ -25,14 +51,16 @@ export const TickerCard = memo(function TickerCard({ snapshot, isFocused, onClic
       )}
     >
       <div className="flex items-center gap-1.5">
-        <span className="text-sm font-semibold">{snapshot.symbol}</span>
+        <span className="text-sm font-semibold">{symbol}</span>
         <span className="text-xs text-muted-foreground">Perp</span>
       </div>
       <span className="font-mono text-sm tabular-nums">
-        {formatPriceWithPrecision(snapshot.lastPrice, config.pricePrecision)}
+        {snapshot
+          ? formatPriceWithPrecision(Number(snapshot.lastPrice), config.pricePrecision)
+          : '—'}
       </span>
       <span className={cn('text-xs tabular-nums', isPositive ? 'text-buy' : 'text-sell')}>
-        {formatChangePercent(snapshot.changePercent24h)}
+        {snapshot ? formatChangePercent(Number(snapshot.changePercent24h)) : '—'}
       </span>
     </button>
   );
