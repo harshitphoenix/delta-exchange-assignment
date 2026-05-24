@@ -1,5 +1,5 @@
 import type { Trade } from '../types';
-import { formatPrice, formatSize } from '../lib/format';
+import { formatPrice, formatSize } from '@/lib/format';
 
 interface TradeRowProps {
   trade: Trade;

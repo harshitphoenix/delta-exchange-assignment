@@ -1,5 +1,5 @@
 import type { RollingStats } from '../types';
-import { formatCount, formatSize, formatVolume } from '../lib/format';
+import { formatCount, formatSize, formatVolume } from '@/lib/format';
 
 interface TradesStatsProps {
   stats: RollingStats;

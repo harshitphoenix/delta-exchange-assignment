@@ -1,5 +1,5 @@
 import type { OrderBookLevel, Side } from '../types';
-import { formatPrice, formatSize, formatTotal } from '../lib/format';
+import { formatPrice, formatSize, formatTotal } from '@/lib/format';
 
 interface OrderBookRowProps {
   level: OrderBookLevel;
