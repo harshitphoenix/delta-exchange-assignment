@@ -1,23 +1,13 @@
-import logo from './logo.svg';
-import './App.css';
+import { OrderBook } from '@/features/orderbook';
+import { Trades } from '@/features/trades';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-background p-4 text-foreground">
+      <div className="grid h-[calc(100vh-2rem)] grid-cols-1 gap-4 lg:grid-cols-2">
+        <OrderBook />
+        <Trades />
+      </div>
     </div>
   );
 }
