@@ -39,3 +39,22 @@ export function formatVolume(value: number): string {
 export function formatCount(value: number): string {
   return COUNT_FORMATTER.format(value);
 }
+
+const priceFormatterCache = new Map<number, Intl.NumberFormat>();
+
+export function formatPriceWithPrecision(value: number, precision: number): string {
+  let formatter = priceFormatterCache.get(precision);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: precision,
+      maximumFractionDigits: precision,
+    });
+    priceFormatterCache.set(precision, formatter);
+  }
+  return formatter.format(value);
+}
+
+export function formatChangePercent(value: number): string {
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${value.toFixed(2)}%`;
+}
