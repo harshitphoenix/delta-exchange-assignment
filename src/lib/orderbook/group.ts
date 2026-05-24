@@ -52,7 +52,6 @@ export function processBook(
   .slice(0, MAX_LEVELS)
   .map(withRunningTotal());
   
-  console.log({bids, asks})
   const bestBid = bids[0]?.price ?? 0;
   const bestAsk = asks[0]?.price ?? 0;
 

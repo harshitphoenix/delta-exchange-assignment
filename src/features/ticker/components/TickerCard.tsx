@@ -18,20 +18,20 @@ export const TickerCard = memo(function TickerCard({ symbol, isFocused, onClick 
   const config = SYMBOL_CONFIG[symbol];
 
   useEffect(() => {
-    client.subscribe('v2/ticker', [symbol]);
+    // client.subscribe('v2/ticker', [symbol]);
 
-    const unsub = client.on('v2/ticker', (raw) => {
-      const msg = raw as Record<string, unknown>;
-      if (msg.symbol !== symbol) return;
+    // const unsub = client.on('v2/ticker', (raw) => {
+    //   const msg = raw as Record<string, unknown>;
+    //   if (msg.symbol !== symbol) return;
 
-      const lastPrice = (msg.close ?? msg.mark_price) as  string;
-      const changePercent24h = msg.ltp_change_24h as string;
-      setTicker({ symbol, lastPrice, changePercent24h });
-    });
+    //   const lastPrice = (msg.close ?? msg.mark_price) as  string;
+    //   const changePercent24h = msg.ltp_change_24h as string;
+    //   setTicker({ symbol, lastPrice, changePercent24h });
+    // });
 
     return () => {
-      unsub();
-      client.unsubscribe('v2/ticker', [symbol]);
+      // unsub();
+      // client.unsubscribe('v2/ticker', [symbol]);
     };
   }, [ symbol]);
 

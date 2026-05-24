@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { OrderBookLevel, Side } from '../types';
 import { OrderBookRow } from './OrderBookRow';
 
@@ -7,7 +9,18 @@ interface OrderBookSideProps {
   maxTotal: number;
 }
 
+const MAX_LEVELS = 300;
+
 export function OrderBookSide({ side, levels, maxTotal }: OrderBookSideProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: MAX_LEVELS,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 24, // h-6
+    overscan: 3,
+  });
+
   const isBid = side === 'bid';
   const header = isBid ? (
     <>
@@ -24,14 +37,32 @@ export function OrderBookSide({ side, levels, maxTotal }: OrderBookSideProps) {
   );
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col overflow-hidden">
       <div className="grid grid-cols-3 px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
         {header}
       </div>
-      <div className="flex flex-col">
-        {levels.map((level) => (
-          <OrderBookRow key={level.price} level={level} side={side} maxTotal={maxTotal} />
-        ))}
+      <div ref={parentRef} className="flex-1 overflow-y-auto">
+        <div>
+          {levels.map((vItem) => (
+            <div
+              key={vItem.price}
+              style={{
+                // position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                // transform: `translateY(${vItem.start}px)`,
+                // height: `${vItem.size}px`,
+              }}
+            >
+              <OrderBookRow
+                level={vItem}
+                side={side}
+                maxTotal={maxTotal}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
