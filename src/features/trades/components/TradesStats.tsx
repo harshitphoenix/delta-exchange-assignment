@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { RollingStats } from '../types';
 import { formatCount, formatSize, formatVolume } from '@/lib/format';
 
@@ -5,7 +6,7 @@ interface TradesStatsProps {
   stats: RollingStats;
 }
 
-export function TradesStats({ stats }: TradesStatsProps) {
+const TradesStats = ({ stats }: TradesStatsProps) => {
   const total = stats.buyVolume + stats.sellVolume;
   const buyPct = total > 0 ? (stats.buyVolume / total) * 100 : 50;
 
@@ -29,7 +30,9 @@ export function TradesStats({ stats }: TradesStatsProps) {
       </div>
     </div>
   );
-}
+};
+
+export default memo(TradesStats);
 
 interface StatProps {
   label: string;

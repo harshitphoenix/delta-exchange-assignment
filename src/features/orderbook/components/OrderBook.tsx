@@ -4,23 +4,36 @@ import { StressWsClient } from '@/lib/stress-ws/client';
 import { processBook } from '@/lib/orderbook/group';
 import { useFocusStore } from '@/lib/stores/focus/focus.store';
 import { setGroupIncrement } from '@/lib/stores/focus/focus.actions';
-import { useOrderBookStore } from '@/lib/stores/orderbook/orderbook.store';
+import { RawBook, RawLevel, useOrderBookStore } from '@/lib/stores/orderbook/orderbook.store';
 import { clearBook } from '@/lib/stores/orderbook/orderbook.actions';
 import type { GroupIncrement } from '../types';
 import GroupingSelector  from './GroupingSelector';
 import { OrderBookSide } from './OrderBookSide';
 import { SpreadMetrics } from './SpreadMetrics';
+import { pushBook } from '@/lib/stress-ws/batcher';
+import { TradingSymbol } from '@/lib/symbols/config';
 
 const OrderBook = ()=> {
   const focusedSymbol = useFocusStore((s) => s.focusedSymbol);
   const groupIncrement = (useFocusStore((s) => s.groupIncrements[focusedSymbol]) ?? 1) as GroupIncrement;
   const rawBook = useOrderBookStore((s) => s.bySymbol[focusedSymbol]);
-  useEffect(() => {
+
+  useEffect(function subscribeToOrderBook() {
     const client = StressWsClient.getInstance();
-    // client.subscribe('l2_orderbook', [focusedSymbol]);
+    client.subscribe('l2_orderbook', [focusedSymbol]);
+    const removeHandler = client.on('l2_orderbook', (raw) => {
+      const msg = raw as Record<string, unknown>;
+      if (!msg.symbol) return;
+      pushBook({
+        symbol: msg.symbol as TradingSymbol,
+        bids: (msg.bids as RawLevel[]) ?? [],
+        asks: (msg.asks as RawLevel[]) ?? [],
+      } satisfies RawBook);
+    });
     return () => {
       client.unsubscribe('l2_orderbook', [focusedSymbol]);
       clearBook(focusedSymbol);
+      removeHandler()
     };
   }, [focusedSymbol]);
   
@@ -43,7 +56,6 @@ const OrderBook = ()=> {
   const book = processBook(rawBook, groupIncrement);
   const maxAskTotal = book.asks.length ? Math.max(...book.asks.map((l) => l.total)) : 0;
   const maxBidTotal = book.bids.length ? Math.max(...book.bids.map((l) => l.total)) : 0;
-  // console.log({rawBook}, "helllo")
 
   return (
     <section className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-card">

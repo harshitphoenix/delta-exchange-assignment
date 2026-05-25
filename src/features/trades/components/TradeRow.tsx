@@ -4,16 +4,17 @@ import { formatPrice, formatSize } from '@/lib/format';
 
 interface TradeRowProps {
   trade: Trade;
+  isLarge: boolean;
 }
 
-function TradeRow({ trade }: TradeRowProps) {
+function TradeRow({ trade, isLarge }: TradeRowProps) {
   const isBuy = trade.side === 'buy';
   const priceClass = isBuy ? 'text-buy' : 'text-sell';
-
+  console.log({isLarge}, "helllo")
   return (
     <div
       className={`grid h-7 grid-cols-3 items-center px-4 text-xs tabular-nums ${
-        trade.isLarge ? 'border-l-2 border-sell bg-sell/10 font-semibold' : ''
+        isLarge ? 'border-l-2 border-sell bg-sell/10 font-semibold' : ''
       }`}
     >
       <span className="text-muted-foreground">{trade.time}</span>

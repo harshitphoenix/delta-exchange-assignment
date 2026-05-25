@@ -5,14 +5,13 @@ import { pushTicker, pushBook, pushTrade, cancelPendingFlush } from '@/lib/stres
 import type { TradingSymbol } from '@/lib/symbols/config';
 import type { RawBook, RawLevel } from '@/lib/stores/orderbook/orderbook.store';
 import type { Trade } from '@/features/trades/types';
+import { parseTradeTime } from '@/lib/utils';
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8080';
 
 let _tradeSeq = 0;
 
-function parseTradeTime(timestampUs: number): string {
-  return new Date(timestampUs / 1000).toISOString().slice(11, 23);
-}
+
 
 export function StressWsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {

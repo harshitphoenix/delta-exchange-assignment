@@ -1,27 +1,45 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useDeferredValue, useMemo, useRef, useState, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@/components/ui/input';
 import TradeRow from './TradeRow';
-import { TradesStats } from './TradesStats';
+import TradesStats  from './TradesStats';
 import { StressWsClient } from '@/lib/stress-ws/client';
 import type { ChannelName } from '@/lib/stress-ws/types';
 import { useFocusStore } from '@/lib/stores/focus/focus.store';
 import { useTradesStore } from '@/lib/stores/trades/trades.store';
 import { clearTrades } from '@/lib/stores/trades/trades.actions';
-import type { RollingStats, Trade } from '../types';
+import type { RollingStats } from '../types';
+import { pushTrade } from '@/lib/stress-ws/batcher';
+import { TradingSymbol } from '@/lib/symbols/config';
+import { parseTradeTime } from '@/lib/utils';
 const MAX_TRADES = 500;
+
 export function Trades() {
   const [threshold, setThreshold] = useState('10000');
+  const deferredThreshold = useDeferredValue(threshold);
   const focusedSymbol = useFocusStore((s) => s.focusedSymbol);
   const feed = useTradesStore((s) => s.bySymbol[focusedSymbol]);
   const trades = feed?.trades ?? [];
 
-  useEffect(() => {
+  useEffect(function subscribeToTrades() {
     const client = StressWsClient.getInstance();
     client.subscribe('all_trades' as ChannelName, [focusedSymbol]);
+    const removeHandler = client.on('all_trades', (raw) => {
+      const msg = raw as Record<string, unknown>;
+      if (!msg.symbol) return;
+
+      pushTrade(msg.symbol as TradingSymbol, {
+        id: msg.timestamp as string,
+        time: parseTradeTime(Number(msg.timestamp)),
+        price: Number(msg.price),
+        size: Number(msg.size),
+        side: msg.buyer_role === 'taker' ? 'buy' : 'sell',
+      });
+    });
     return () => {
       client.unsubscribe('all_trades' as ChannelName, [focusedSymbol]);
       clearTrades(focusedSymbol);
+      removeHandler()
     };
   }, [focusedSymbol]);
 
@@ -44,7 +62,7 @@ export function Trades() {
     };
   }, [trades]);
 
-  const thresholdNum = Number(threshold) || 0;
+  const thresholdNum = Number(deferredThreshold) || 0;
 
   const scrollParentRef = useRef<HTMLDivElement>(null);
 
@@ -55,10 +73,6 @@ export function Trades() {
   //   overscan: 5,
   // });
 
-  const enriched = (trade: Trade) => ({
-    ...trade,
-    isLarge: trade.price * trade.size >= thresholdNum,
-  });
 
 
   return (
@@ -107,7 +121,7 @@ export function Trades() {
                   // height: `${vItem.size}px`,
                 }}
               >
-                <TradeRow trade={enriched(trade)} />
+                <TradeRow trade={trade} isLarge={trade.price * trade.size >= thresholdNum} />
               </div>
             ))}
           </div>

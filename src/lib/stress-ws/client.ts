@@ -70,7 +70,7 @@ export class StressWsClient {
   }
 
   /** Register a handler for a message type. Returns an unsubscribe function. */
-  on(type: string, handler: MessageHandler): () => void {
+  on(type: string, handler: MessageHandler) {
     let set = this.handlers.get(type);
     if (!set) {
       set = new Set();
