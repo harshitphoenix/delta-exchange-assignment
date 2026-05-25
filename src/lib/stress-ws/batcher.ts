@@ -5,42 +5,64 @@ import type { Trade } from '@/features/trades/types';
 import { setTicker } from '@/lib/stores/ticker/ticker.actions';
 import { setBook } from '@/lib/stores/orderbook/orderbook.actions';
 import { addTrades } from '@/lib/stores/trades/trades.actions';
+import { aggregateTrades } from '../trades/aggregate';
 
-// Latest per symbol — intermediate frames are dropped under load
+// ── Ticker ────────────────────────────────────────────────────────────────────
+// Latest-wins per symbol — intermediate frames are dropped under load
+
 const tickerBuffer = new Map<TradingSymbol, TickerSnapshot>();
-const bookBuffer = new Map<TradingSymbol, RawBook>();
-// Accumulates — all trades within a frame are flushed together
-const tradesBuffer = new Map<TradingSymbol, Trade[]>();
+let tickerRafId: number | null = null;
 
-let rafId: number | null = null;
-
-function flush(): void {
+function flushTicker(): void {
   tickerBuffer.forEach((snapshot) => setTicker(snapshot));
   tickerBuffer.clear();
-
-  bookBuffer.forEach((book) => setBook(book));
-  bookBuffer.clear();
-
-  tradesBuffer.forEach((trades, symbol) => addTrades(symbol, trades));
-  tradesBuffer.clear();
 }
 
-function schedule(): void {
-  if (rafId !== null) return;
-  rafId = requestAnimationFrame(() => {
-    rafId = null;
-    flush();
-  });
+function scheduleTicker(): void {
+  if (tickerRafId !== null) return;
+  tickerRafId = requestAnimationFrame(() => { tickerRafId = null; flushTicker(); });
 }
 
 export function pushTicker(snapshot: TickerSnapshot): void {
   tickerBuffer.set(snapshot.symbol, snapshot);
-  schedule();
+  scheduleTicker();
+}
+
+// ── Order Book ────────────────────────────────────────────────────────────────
+// Latest-wins per symbol
+
+const bookBuffer = new Map<TradingSymbol, RawBook>();
+let bookRafId: number | null = null;
+
+function flushBook(): void {
+  bookBuffer.forEach((book) => setBook(book));
+  bookBuffer.clear();
+}
+
+function scheduleBook(): void {
+  if (bookRafId !== null) return;
+  bookRafId = requestAnimationFrame(() => { bookRafId = null; flushBook(); });
 }
 
 export function pushBook(book: RawBook): void {
   bookBuffer.set(book.symbol, book);
-  schedule();
+  scheduleBook();
+}
+
+// ── Trades ────────────────────────────────────────────────────────────────────
+// Accumulates — all trades within a frame are aggregated then flushed together
+
+const tradesBuffer = new Map<TradingSymbol, Trade[]>();
+let tradesRafId: number | null = null;
+
+function flushTrades(): void {
+  tradesBuffer.forEach((trades, symbol) => addTrades(symbol, aggregateTrades(trades)));
+  tradesBuffer.clear();
+}
+
+function scheduleTrades(): void {
+  if (tradesRafId !== null) return;
+  tradesRafId = requestAnimationFrame(() => { tradesRafId = null; flushTrades(); });
 }
 
 export function pushTrade(symbol: TradingSymbol, trade: Trade): void {
@@ -50,12 +72,13 @@ export function pushTrade(symbol: TradingSymbol, trade: Trade): void {
   } else {
     tradesBuffer.set(symbol, [trade]);
   }
-  schedule();
+  scheduleTrades();
 }
 
+// ── Lifecycle ─────────────────────────────────────────────────────────────────
+
 export function cancelPendingFlush(): void {
-  if (rafId !== null) {
-    cancelAnimationFrame(rafId);
-    rafId = null;
-  }
+  if (tickerRafId !== null) { cancelAnimationFrame(tickerRafId); tickerRafId = null; }
+  if (bookRafId !== null) { cancelAnimationFrame(bookRafId); bookRafId = null; }
+  if (tradesRafId !== null) { cancelAnimationFrame(tradesRafId); tradesRafId = null; }
 }
