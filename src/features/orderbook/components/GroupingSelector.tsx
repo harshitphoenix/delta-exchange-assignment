@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { GroupIncrement } from '../types';
 
 const OPTIONS: GroupIncrement[] = [1, 5, 10, 50, 100, 500];
@@ -7,7 +8,7 @@ interface GroupingSelectorProps {
   onChange: (value: GroupIncrement) => void;
 }
 
-export function GroupingSelector({ value, onChange }: GroupingSelectorProps) {
+function GroupingSelector({ value, onChange }: GroupingSelectorProps) {
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-muted-foreground">Group:</span>
@@ -33,3 +34,5 @@ export function GroupingSelector({ value, onChange }: GroupingSelectorProps) {
     </div>
   );
 }
+
+export default memo(GroupingSelector)

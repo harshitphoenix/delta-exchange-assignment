@@ -1,4 +1,4 @@
-export const SYMBOLS = ['BTCUSD', 'ETHUSD', 'XRPUSD', 'SOLUSD', 'PAXGUSD', 'DOGEUSD'] as const;
+export const SYMBOLS = ['BTCUSD', 'ETHUSD', 'XRPUSD', 'SOLUSD', 'PAXGUSD', 'DOGEUSD'];
 export type TradingSymbol = typeof SYMBOLS[number];
 
 export interface SymbolConfig {

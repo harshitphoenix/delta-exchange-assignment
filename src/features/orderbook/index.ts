@@ -1,1 +1,1 @@
-export { OrderBook } from './components/OrderBook';
+export { default as OrderBook } from './components/OrderBook';

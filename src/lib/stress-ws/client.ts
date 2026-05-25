@@ -171,3 +171,5 @@ export class StressWsClient {
     this.statusListeners.forEach(h => h(update));
   }
 }
+
+export const stressWsClient = StressWsClient.getInstance();

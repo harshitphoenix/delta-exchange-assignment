@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@/components/ui/input';
-import { TradeRow } from './TradeRow';
+import TradeRow from './TradeRow';
 import { TradesStats } from './TradesStats';
 import { StressWsClient } from '@/lib/stress-ws/client';
 import type { ChannelName } from '@/lib/stress-ws/types';
@@ -97,7 +97,7 @@ export function Trades() {
             {/* {virtualizer.getVirtualItems().map((vItem,index) => ( */}
             {trades.map((trade, index) => (
               <div
-                key={trade.id}
+                key={`${trade.id}_${index}`}
                 style={{
                   // position: 'absolute',
                   top: 0,

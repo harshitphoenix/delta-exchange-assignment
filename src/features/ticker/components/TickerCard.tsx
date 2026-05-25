@@ -9,37 +9,20 @@ import { StressWsClient } from '@/lib/stress-ws/client';
 interface TickerCardProps {
   symbol: TradingSymbol;
   isFocused: boolean;
-  onClick: () => void;
+  onClick: (symbol:TradingSymbol) => void;
 }
 
 export const TickerCard = memo(function TickerCard({ symbol, isFocused, onClick }: TickerCardProps) {
-  const client = StressWsClient.getInstance();
+
   const snapshot = useTickerStore((s) => s.bySymbol[symbol]);
   const config = SYMBOL_CONFIG[symbol];
 
-  useEffect(() => {
-    // client.subscribe('v2/ticker', [symbol]);
-
-    // const unsub = client.on('v2/ticker', (raw) => {
-    //   const msg = raw as Record<string, unknown>;
-    //   if (msg.symbol !== symbol) return;
-
-    //   const lastPrice = (msg.close ?? msg.mark_price) as  string;
-    //   const changePercent24h = msg.ltp_change_24h as string;
-    //   setTicker({ symbol, lastPrice, changePercent24h });
-    // });
-
-    return () => {
-      // unsub();
-      // client.unsubscribe('v2/ticker', [symbol]);
-    };
-  }, [ symbol]);
 
   const isPositive = (Number(snapshot?.changePercent24h) ?? 0) >= 0;
 
   return (
     <button
-      onClick={onClick}
+      onClick={()=>onClick(symbol)}
       className={cn(
         'flex flex-col items-start gap-0.5 rounded-sm border-b-2 px-4 py-3 text-left transition-colors',
         isFocused

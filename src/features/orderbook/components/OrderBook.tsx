@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { StressWsClient } from '@/lib/stress-ws/client';
 import { processBook } from '@/lib/orderbook/group';
@@ -7,17 +7,17 @@ import { setGroupIncrement } from '@/lib/stores/focus/focus.actions';
 import { useOrderBookStore } from '@/lib/stores/orderbook/orderbook.store';
 import { clearBook } from '@/lib/stores/orderbook/orderbook.actions';
 import type { GroupIncrement } from '../types';
-import { GroupingSelector } from './GroupingSelector';
+import GroupingSelector  from './GroupingSelector';
 import { OrderBookSide } from './OrderBookSide';
 import { SpreadMetrics } from './SpreadMetrics';
 
-export function OrderBook() {
+const OrderBook = ()=> {
   const focusedSymbol = useFocusStore((s) => s.focusedSymbol);
   const groupIncrement = (useFocusStore((s) => s.groupIncrements[focusedSymbol]) ?? 1) as GroupIncrement;
   const rawBook = useOrderBookStore((s) => s.bySymbol[focusedSymbol]);
   useEffect(() => {
     const client = StressWsClient.getInstance();
-    client.subscribe('l2_orderbook', [focusedSymbol]);
+    // client.subscribe('l2_orderbook', [focusedSymbol]);
     return () => {
       client.unsubscribe('l2_orderbook', [focusedSymbol]);
       clearBook(focusedSymbol);
@@ -69,3 +69,5 @@ export function OrderBook() {
     </section>
   );
 }
+
+export default memo(OrderBook)

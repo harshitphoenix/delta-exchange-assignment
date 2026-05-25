@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { OrderBookLevel, Side } from '../types';
 import { formatPrice, formatSize, formatTotal } from '@/lib/format';
 
@@ -7,7 +8,7 @@ interface OrderBookRowProps {
   maxTotal: number;
 }
 
-export function OrderBookRow({ level, side, maxTotal }: OrderBookRowProps) {
+function OrderBookRow({ level, side, maxTotal }: OrderBookRowProps) {
   const depthPct = Math.min(100, (level.total / maxTotal) * 100);
   const isBid = side === 'bid';
 
@@ -15,8 +16,8 @@ export function OrderBookRow({ level, side, maxTotal }: OrderBookRowProps) {
     <div className="relative grid h-6 grid-cols-3 items-center px-3 text-xs tabular-nums">
       <div
         aria-hidden
-        className={`absolute inset-y-0 ${isBid ? 'left-0' : 'right-0'} ${
-          isBid ? 'bg-buy/10' : 'bg-sell/10'
+        className={`absolute inset-y-0 transition-all duration-300 delay-150 ease-in-out ${isBid ? 'left-0' : 'right-0'} ${
+          isBid ? 'bg-buy/10 rounded-r-sm' : 'bg-sell/10 rounded-l-sm'
         }`}
         style={{ width: `${depthPct}%` }}
       />
@@ -36,3 +37,5 @@ export function OrderBookRow({ level, side, maxTotal }: OrderBookRowProps) {
     </div>
   );
 }
+
+export default memo(OrderBookRow)

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Trade } from '../types';
 import { formatPrice, formatSize } from '@/lib/format';
 
@@ -5,7 +6,7 @@ interface TradeRowProps {
   trade: Trade;
 }
 
-export function TradeRow({ trade }: TradeRowProps) {
+function TradeRow({ trade }: TradeRowProps) {
   const isBuy = trade.side === 'buy';
   const priceClass = isBuy ? 'text-buy' : 'text-sell';
 
@@ -26,3 +27,5 @@ export function TradeRow({ trade }: TradeRowProps) {
     </div>
   );
 }
+
+export default memo(TradeRow)
