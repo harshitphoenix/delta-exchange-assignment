@@ -1,27 +1,28 @@
-import { memo } from 'react';
-import type { RollingStats } from '../types';
+import { memo, useMemo } from 'react';
 import { formatCount, formatSize, formatVolume } from '@/lib/format';
 
-interface TradesStatsProps {
-  stats: RollingStats;
+type Props = {
+  stats: Stats | null;
 }
 
-const TradesStats = ({ stats }: TradesStatsProps) => {
-  const total = stats.buyVolume + stats.sellVolume;
-  const buyPct = total > 0 ? (stats.buyVolume / total) * 100 : 50;
+type Stats = { buyVolume: number; sellVolume: number; tradeCount: number; avgSize: number }
 
+const TradesStats = ({ stats }: Props) => {
+  
+const total =useMemo (() => (stats?.buyVolume ?? 0) + (stats?.sellVolume ?? 0), [stats]);
+const buyPct = total > 0 ? ((stats?.buyVolume ?? 0) / total) * 100 : 50;
   return (
     <div className="border-b border-border bg-muted/40 px-4 py-3">
       <div className="grid grid-cols-3 gap-4 text-xs">
         <Stat label="1m Volume">
-          <span className="text-buy">{formatVolume(stats.buyVolume)} buy</span>{' '}
-          <span className="text-sell">{formatVolume(stats.sellVolume)} sell</span>
+          <span className="text-buy">{formatVolume(stats?.buyVolume ?? 0)} buy</span>{' '}
+          <span className="text-sell">{formatVolume(stats?.sellVolume ?? 0)} sell</span>
         </Stat>
         <Stat label="1m Trades" align="center">
-          <span className="text-base font-semibold tabular-nums">{formatCount(stats.tradeCount)}</span>
+          <span className="text-base font-semibold tabular-nums">{formatCount(stats?.tradeCount ?? 0)}</span>
         </Stat>
         <Stat label="Avg Size" align="right">
-          <span className="text-base font-semibold tabular-nums">{formatSize(stats.avgSize)} BTC</span>
+          <span className="text-base font-semibold tabular-nums">{formatSize(stats?.avgSize ?? 0)} BTC</span>
         </Stat>
       </div>
       <div className="mt-2 flex h-1 overflow-hidden rounded-full bg-muted">

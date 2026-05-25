@@ -2,7 +2,7 @@ export type TradeSide = 'buy' | 'sell';
 
 export interface Trade {
   id: string;
-  time: string;
+  timestamp: number;
   price: number;
   size: number;
   side: TradeSide;
@@ -10,9 +10,3 @@ export interface Trade {
   isLarge?: boolean;
 }
 
-export interface RollingStats {
-  buyVolume: number;
-  sellVolume: number;
-  tradeCount: number;
-  avgSize: number;
-}

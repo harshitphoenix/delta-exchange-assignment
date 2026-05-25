@@ -1,17 +1,11 @@
 import { useEffect, type ReactNode } from 'react';
 import { StressWsClient } from '@/lib/stress-ws/client';
 import { updateConnection } from '@/lib/stores/connection/connection.actions';
-import { pushTicker, pushBook, pushTrade, cancelPendingFlush } from '@/lib/stress-ws/batcher';
+import { pushTicker, pushBook, cancelPendingFlush } from '@/lib/stress-ws/batcher';
 import type { TradingSymbol } from '@/lib/symbols/config';
 import type { RawBook, RawLevel } from '@/lib/stores/orderbook/orderbook.store';
-import type { Trade } from '@/features/trades/types';
-import { parseTradeTime } from '@/lib/utils';
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8080';
-
-let _tradeSeq = 0;
-
-
 
 export function StressWsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -39,28 +33,12 @@ export function StressWsProvider({ children }: { children: ReactNode }) {
       } satisfies RawBook);
     });
 
-    const unsubTrades = client.on('all_trades', (raw) => {
-      const msg = raw as Record<string, unknown>;
-      if (!msg.symbol) return;
-      const price = Number(msg.price);
-      const size = Number(msg.size);
-      const trade: Trade = {
-        id: String(++_tradeSeq),
-        time: parseTradeTime(Number(msg.timestamp)),
-        price,
-        size,
-        side: msg.buyer_role === 'taker' ? 'buy' : 'sell',
-      };
-      pushTrade(msg.symbol as TradingSymbol, trade);
-    });
-
     client.connect(WS_URL);
 
     return () => {
       unsubStatus();
       unsubTicker();
       unsubBook();
-      unsubTrades();
       cancelPendingFlush();
       client.disconnect();
     };

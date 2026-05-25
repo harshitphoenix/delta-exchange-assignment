@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useRef, useState, useEffect } from 'react';
+import { useDeferredValue, useRef, useState, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@/components/ui/input';
 import TradeRow from './TradeRow';
@@ -8,10 +8,9 @@ import type { ChannelName } from '@/lib/stress-ws/types';
 import { useFocusStore } from '@/lib/stores/focus/focus.store';
 import { useTradesStore } from '@/lib/stores/trades/trades.store';
 import { clearTrades } from '@/lib/stores/trades/trades.actions';
-import type { RollingStats } from '../types';
 import { pushTrade } from '@/lib/stress-ws/batcher';
 import { TradingSymbol } from '@/lib/symbols/config';
-import { parseTradeTime } from '@/lib/utils';
+import type { Trade } from '../types';
 const MAX_TRADES = 500;
 
 export function Trades() {
@@ -29,8 +28,8 @@ export function Trades() {
       if (!msg.symbol) return;
 
       pushTrade(msg.symbol as TradingSymbol, {
-        id: msg.timestamp as string,
-        time: parseTradeTime(Number(msg.timestamp)),
+        id: `${msg.timestamp}_${msg.price}_${msg.size}`,
+        timestamp: Number(msg.timestamp),
         price: Number(msg.price),
         size: Number(msg.size),
         side: msg.buyer_role === 'taker' ? 'buy' : 'sell',
@@ -43,25 +42,6 @@ export function Trades() {
     };
   }, [focusedSymbol]);
 
-  const stats = useMemo((): RollingStats | null => {
-    if (!trades.length) return null;
-    let buyVolume = 0;
-    let sellVolume = 0;
-    let totalSize = 0;
-    for (const t of trades) {
-      const notional = t.price * t.size;
-      if (t.side === 'buy') buyVolume += notional;
-      else sellVolume += notional;
-      totalSize += t.size;
-    }
-    return {
-      buyVolume,
-      sellVolume,
-      tradeCount: trades.length,
-      avgSize: totalSize / trades.length,
-    };
-  }, [trades]);
-
   const thresholdNum = Number(deferredThreshold) || 0;
 
   const scrollParentRef = useRef<HTMLDivElement>(null);
@@ -73,6 +53,34 @@ export function Trades() {
   //   overscan: 5,
   // });
 
+
+// Keep a ref so the interval callback always sees the latest trades without re-registering
+const tradesRef = useRef<Trade[]>(trades);
+useEffect(() => { 
+  tradesRef.current = trades; 
+}, [trades]);
+
+const [stats, setStats] = useState<{ buyVolume: number; sellVolume: number; tradeCount: number; avgSize: number } | null>(null);
+
+useEffect(() => { setStats(null); }, [focusedSymbol]);
+useEffect(() => {
+  const compute = () => {
+    const cutoff = Date.now() - 60_000;
+    const window = tradesRef.current.filter((t) =>( t.timestamp / 1000 )>= cutoff);
+    if (!window.length) { setStats(null); return; }
+    let buyVolume = 0, sellVolume = 0, totalSize = 0;
+    for (const t of window) {
+      const notional = t.price * t.size;
+      if (t.side === 'buy') buyVolume += notional;
+      else sellVolume += notional;
+      totalSize += t.size;
+    }
+    setStats({ buyVolume, sellVolume, tradeCount: window.length, avgSize: totalSize / window.length });
+  };
+  compute();
+  const id = setInterval(compute, 1_000);
+  return () => clearInterval(id);
+}, []);
 
 
   return (
@@ -93,7 +101,7 @@ export function Trades() {
         </label>
       </header>
 
-      {stats && <TradesStats stats={stats} />}
+       <TradesStats stats={stats} />
 
       <div className="grid grid-cols-3 px-4 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
         <span>Time</span>
