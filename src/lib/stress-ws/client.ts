@@ -24,13 +24,18 @@ export class StressWsClient {
   // Message demux: message.type → handler set
   private readonly handlers = new Map<string, Set<MessageHandler>>();
 
-  // Connection status listeners (wired to useConnectionStore by StressWsProvider)
+  // Connection status listeners
   private readonly statusListeners = new Set<StatusHandler>();
+
+  // Per-type frame buffers and their scheduled RAF ids
+  private readonly buffers = new Map<string, unknown[]>();
+  private readonly batchRafIds = new Map<string, number>();
 
   // ── Public API ──────────────────────────────────────────────────────────────
 
   connect(url: string): void {
     this.clearTimer();
+    this.cancelAllBatches();
     this.ws?.close();
     this.ws = null;
     this.attempt = 0;
@@ -42,6 +47,7 @@ export class StressWsClient {
   disconnect(): void {
     this.destroyed = true;
     this.clearTimer();
+    this.cancelAllBatches();
     this.ws?.close();
     this.ws = null;
     this.emitStatus('disconnected', 0);
@@ -70,7 +76,7 @@ export class StressWsClient {
   }
 
   /** Register a handler for a message type. Returns an unsubscribe function. */
-  on(type: string, handler: MessageHandler) {
+  on(type: string, handler: MessageHandler): () => void {
     let set = this.handlers.get(type);
     if (!set) {
       set = new Set();
@@ -127,7 +133,7 @@ export class StressWsClient {
 
     const type = (msg as Record<string, unknown>).type as string;
 
-    // Backend ack — sync channel count and mark as connected
+    // Backend ack — sync channel count and mark as connected; not buffered
     if (type === 'subscriptions') {
       const channels =
         (msg as { payload?: { channels?: unknown[] } }).payload?.channels ?? [];
@@ -135,7 +141,25 @@ export class StressWsClient {
       return;
     }
 
-    this.handlers.get(type)?.forEach(h => h(msg));
+    // Buffer frame and schedule a per-type RAF flush
+    if (!this.buffers.has(type)) this.buffers.set(type, []);
+    this.buffers.get(type)!.push(msg);
+
+    if (!this.batchRafIds.has(type)) {
+      const id = requestAnimationFrame(() => {
+        this.batchRafIds.delete(type);
+        const messages = this.buffers.get(type)?.splice(0) ?? [];
+        if (messages.length) this.handlers.get(type)?.forEach(h => h(messages));
+      });
+      this.batchRafIds.set(type, id);
+    }
+  }
+
+  /** Cancel all pending per-type RAF flushes and clear their buffers. */
+  private cancelAllBatches(): void {
+    this.batchRafIds.forEach(id => cancelAnimationFrame(id));
+    this.batchRafIds.clear();
+    this.buffers.clear();
   }
 
   /** Merge registry into one subscribe message and send. Called on open and subscribe(). */

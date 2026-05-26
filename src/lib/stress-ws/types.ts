@@ -8,5 +8,5 @@ export interface StatusUpdate {
   wsUrl: string;
 }
 
-export type MessageHandler = (message: unknown) => void;
+export type MessageHandler = (messages: unknown[]) => void;
 export type StatusHandler = (update: StatusUpdate) => void;

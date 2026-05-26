@@ -1,6 +1,6 @@
 import { useTradesStore } from './trades.store';
 import type { TradingSymbol } from '@/lib/symbols/config';
-import type { Trade, RollingStats } from '@/features/trades/types';
+import type { Trade } from '@/features/trades/types';
 
 const MAX_TRADES = 500;
 
@@ -17,7 +17,7 @@ export const addTrades = (symbol: TradingSymbol, incoming: Trade[]): void => {
   });
 };
 
-export const setStats = (symbol: TradingSymbol, stats: RollingStats): void => {
+export const setStats = (symbol: TradingSymbol, stats: any): void => {
   useTradesStore.setState((s) => ({
     bySymbol: {
       ...s.bySymbol,
