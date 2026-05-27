@@ -1,16 +1,15 @@
 import { memo, useMemo } from 'react';
 import { formatCount, formatSize, formatVolume } from '@/lib/format';
+import type { RollingStats } from '../engine/types';
 
-type Props = {
-  stats: Stats | null;
+interface TradesStatsProps {
+  stats: RollingStats | null;
 }
 
-type Stats = { buyVolume: number; sellVolume: number; tradeCount: number; avgSize: number }
+const TradesStats = ({ stats }: TradesStatsProps) => {
+  const total = useMemo(() => (stats?.buyVolume ?? 0) + (stats?.sellVolume ?? 0), [stats]);
+  const buyPct = total > 0 ? ((stats?.buyVolume ?? 0) / total) * 100 : 50;
 
-const TradesStats = ({ stats }: Props) => {
-  
-const total =useMemo (() => (stats?.buyVolume ?? 0) + (stats?.sellVolume ?? 0), [stats]);
-const buyPct = total > 0 ? ((stats?.buyVolume ?? 0) / total) * 100 : 50;
   return (
     <div className="border-b border-border bg-muted/40 px-4 py-3">
       <div className="grid grid-cols-3 gap-4 text-xs">
