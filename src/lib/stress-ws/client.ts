@@ -114,6 +114,7 @@ export class StressWsClient {
 
     ws.onclose = () => {
       if (ws !== this.ws || this.destroyed) return;
+      this.emitStatus('reconnecting', 0);
       this.scheduleReconnect();
     };
 
