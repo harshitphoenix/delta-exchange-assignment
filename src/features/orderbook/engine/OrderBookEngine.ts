@@ -1,15 +1,25 @@
 import type { TradingSymbol } from '@/lib/symbols/config';
-import type { RawBook, ProcessedLevel, ProcessedBook } from './types';
-import { applyDelta } from './normalization';
-import { aggregate } from './aggregation';
+import type { RawBook } from './types';
+import { SideAggregator } from './aggregation';
 import { computeMetrics } from './metrics';
 import { setSnapshot, clearSnapshot } from '../store/orderbook.actions';
 
 interface SymbolState {
   bids: Map<number, number>;
   asks: Map<number, number>;
-  processedBids: ProcessedLevel[];
-  processedAsks: ProcessedLevel[];
+  bidSide: SideAggregator;
+  askSide: SideAggregator;
+  lastIncrement: number;
+}
+
+function createSymbolState(): SymbolState {
+  return {
+    bids: new Map(),
+    asks: new Map(),
+    bidSide: new SideAggregator('bid'),
+    askSide: new SideAggregator('ask'),
+    lastIncrement: -1,
+  };
 }
 
 class OrderBookEngine {
@@ -30,23 +40,29 @@ class OrderBookEngine {
       const symbol = msg.symbol;
       let state = this.symbols.get(symbol);
       if (!state) {
-        state = { bids: new Map(), asks: new Map(), processedBids: [], processedAsks: [] };
+        state = createSymbolState();
         this.symbols.set(symbol, state);
       }
-      applyDelta(state.bids, msg.bids);
-      applyDelta(state.asks, msg.asks);
+
+      this.syncIncrement(state, groupIncrement);
+      state.bidSide.applyDeltas(state.bids, msg.bids);
+      state.askSide.applyDeltas(state.asks, msg.asks);
       dirty.add(symbol);
     }
 
     for (const symbol of dirty) {
-      this.commit(symbol, groupIncrement);
+      this.commit(symbol);
     }
   }
 
   reprocess(symbol: TradingSymbol, groupIncrement: number): void {
-    if (this.symbols.has(symbol)) {
-      this.commit(symbol, groupIncrement);
-    }
+    const state = this.symbols.get(symbol);
+    if (!state) return;
+
+    this.syncIncrement(state, groupIncrement);
+    state.bidSide.requestFullRebuild();
+    state.askSide.requestFullRebuild();
+    this.commit(symbol);
   }
 
   clear(symbol: TradingSymbol): void {
@@ -54,18 +70,25 @@ class OrderBookEngine {
     clearSnapshot(symbol);
   }
 
-  private commit(symbol: TradingSymbol, groupIncrement: number): void {
+  private syncIncrement(state: SymbolState, groupIncrement: number): void {
+    if (state.lastIncrement === groupIncrement) return;
+    state.bidSide.setIncrement(groupIncrement);
+    state.askSide.setIncrement(groupIncrement);
+    state.lastIncrement = groupIncrement;
+  }
+
+  private commit(symbol: TradingSymbol): void {
     const state = this.symbols.get(symbol)!;
-    aggregate(state.bids, groupIncrement, 'bid', state.processedBids);
-    aggregate(state.asks, groupIncrement, 'ask', state.processedAsks);
-    const metrics = computeMetrics(state.processedBids, state.processedAsks);
-    const snapshot: ProcessedBook = {
+    state.bidSide.flush(state.bids);
+    state.askSide.flush(state.asks);
+
+    const metrics = computeMetrics(state.bidSide.levels, state.askSide.levels);
+    setSnapshot(symbol, {
       symbol,
-      bids: state.processedBids,
-      asks: state.processedAsks,
+      bids: state.bidSide.levels,
+      asks: state.askSide.levels,
       ...metrics,
-    };
-    setSnapshot(symbol, snapshot);
+    });
   }
 }
 
