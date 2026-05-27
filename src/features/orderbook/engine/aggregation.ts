@@ -20,11 +20,9 @@ export function aggregate(
   const sorted = [...buckets.entries()].sort(
     side === 'bid' ? (a, b) => b[0] - a[0] : (a, b) => a[0] - b[0],
   );
-
-  const limit = Math.min(sorted.length, MAX_LEVELS);
   let running = 0;
 
-  for (let i = 0; i < limit; i++) {
+  for (let i = 0; i < sorted.length; i++) {
     const [price, size] = sorted[i];
     running += size;
     if (i < out.length) {
@@ -35,6 +33,4 @@ export function aggregate(
       out.push({ price, size, total: running });
     }
   }
-
-  if (out.length > limit) out.splice(limit);
 }

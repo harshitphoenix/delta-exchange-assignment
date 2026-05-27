@@ -17,8 +17,8 @@ function OrderBookRow({ price, size, total, maxTotal, side }: OrderBookRowProps)
     <div className="relative grid h-6 grid-cols-3 items-center px-3 text-xs tabular-nums">
       <div
         aria-hidden
-        className={`absolute inset-y-0 transition-all duration-300 delay-150 ease-in-out ${isBid ? 'left-0 rounded-r-sm bg-buy/10' : 'right-0 rounded-l-sm bg-sell/10'}`}
-        style={{ width: `${depthPct}%` }}
+        className={`absolute inset-y-0 w-full ${isBid ? 'left-0 origin-left rounded-r-sm bg-buy/10' : 'right-0 origin-right rounded-l-sm bg-sell/10'}`}
+        style={{ transform: `scaleX(${depthPct / 100})` }}
       />
       {isBid ? (
         <>

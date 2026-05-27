@@ -37,11 +37,11 @@ export function OrderBookSide({ side, levels, maxTotal }: OrderBookSideProps) {
   );
 
   return (
-    <div className="flex min-h-0 flex-col overflow-auto">
-      <div className="grid shrink-0 grid-cols-3 px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+    <div className="flex flex-col overflow-auto">
+      <div className="grid grid-cols-3 px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
         {header}
       </div>
-      <div ref={parentRef} className="h-192 overflow-y-auto">
+      <div ref={parentRef} className="h-96 overflow-y-auto">
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
           {virtualizer.getVirtualItems().map((vItem) => {
             const level = levels[vItem.index];
