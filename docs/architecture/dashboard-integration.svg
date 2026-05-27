@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#9ca3af"/>
+    </marker>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12141a"/>
+      <stop offset="100%" stop-color="#0c0e12"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="720" fill="url(#bg)"/>
+  <text x="480" y="36" text-anchor="middle" fill="#f3f4f6" font-size="20" font-weight="600">Dashboard  Component Communication</text>
+  <text x="480" y="58" text-anchor="middle" fill="#9ca3af" font-size="13">Realtime trading UI · shared WebSocket · focus-driven subscriptions</text>
+
+  <!-- External -->
+  <rect x="380" y="78" width="200" height="48" rx="8" fill="#1f2937" stroke="#f59e0b" stroke-width="2"/>
+  <text x="480" y="100" text-anchor="middle" fill="#fcd34d" font-size="13" font-weight="600">Stress WS Server</text>
+  <text x="480" y="116" text-anchor="middle" fill="#9ca3af" font-size="11">localhost:8080</text>
+
+  <!-- Transport -->
+  <rect x="340" y="160" width="280" height="56" rx="8" fill="#1a1d26" stroke="#eab308" stroke-width="1.5"/>
+  <text x="480" y="184" text-anchor="middle" fill="#fde047" font-size="13" font-weight="600">StressWsClient</text>
+  <text x="480" y="202" text-anchor="middle" fill="#9ca3af" font-size="11">connect · subscribe · RAF batch per channel</text>
+
+  <line x1="480" y1="126" x2="480" y2="160" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="480" y1="216" x2="480" y2="248" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Focus store center -->
+  <rect x="360" y="248" width="240" height="52" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="480" y="272" text-anchor="middle" fill="#c7d2fe" font-size="13" font-weight="600">useFocusStore</text>
+  <text x="480" y="290" text-anchor="middle" fill="#9ca3af" font-size="11">focusedSymbol · groupIncrements (persisted)</text>
+
+  <!-- UI row -->
+  <rect x="40" y="340" width="160" height="72" rx="8" fill="#1a1d26" stroke="#6b7280"/>
+  <text x="120" y="368" text-anchor="middle" fill="#e5e7eb" font-size="12" font-weight="600">ConnectionStatusBar</text>
+  <text x="120" y="386" text-anchor="middle" fill="#9ca3af" font-size="10">reads connection.store</text>
+
+  <rect x="220" y="340" width="160" height="72" rx="8" fill="#1a1d26" stroke="#6b7280"/>
+  <text x="300" y="368" text-anchor="middle" fill="#e5e7eb" font-size="12" font-weight="600">TickerBar</text>
+  <text x="300" y="386" text-anchor="middle" fill="#9ca3af" font-size="10">v2/ticker · all 6 symbols</text>
+
+  <rect x="400" y="330" width="200" height="92" rx="8" fill="#142819" stroke="#22c55e" stroke-width="2"/>
+  <text x="500" y="358" text-anchor="middle" fill="#86efac" font-size="13" font-weight="600">Order Book Panel</text>
+  <text x="500" y="376" text-anchor="middle" fill="#9ca3af" font-size="10">OrderBook.tsx</text>
+  <text x="500" y="392" text-anchor="middle" fill="#6ee7b7" font-size="10">l2_orderbook · focused</text>
+
+  <rect x="620" y="330" width="200" height="92" rx="8" fill="#2a1515" stroke="#ef4444" stroke-width="2"/>
+  <text x="720" y="358" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">Trades Panel</text>
+  <text x="720" y="376" text-anchor="middle" fill="#9ca3af" font-size="10">Trades.tsx</text>
+  <text x="720" y="392" text-anchor="middle" fill="#f87171" font-size="10">all_trades · focused</text>
+
+  <rect x="840" y="340" width="100" height="72" rx="8" fill="#1a1d26" stroke="#6b7280"/>
+  <text x="890" y="372" text-anchor="middle" fill="#e5e7eb" font-size="11" font-weight="600">App.tsx</text>
+  <text x="890" y="390" text-anchor="middle" fill="#9ca3af" font-size="10">layout shell</text>
+
+  <!-- Engines -->
+  <rect x="400" y="460" width="200" height="64" rx="8" fill="#142819" stroke="#16a34a"/>
+  <text x="500" y="486" text-anchor="middle" fill="#86efac" font-size="12" font-weight="600">OrderBookEngine</text>
+  <text x="500" y="504" text-anchor="middle" fill="#9ca3af" font-size="10">bucket · sort · metrics</text>
+
+  <rect x="620" y="460" width="200" height="64" rx="8" fill="#2a1515" stroke="#dc2626"/>
+  <text x="720" y="486" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="600">TradesEngine</text>
+  <text x="720" y="504" text-anchor="middle" fill="#9ca3af" font-size="10">ring · aggregate · stats</text>
+
+  <!-- Stores -->
+  <rect x="400" y="560" width="200" height="48" rx="8" fill="#1a1d26" stroke="#4ade80"/>
+  <text x="500" y="590" text-anchor="middle" fill="#bbf7d0" font-size="11">orderbook.store (snapshots)</text>
+
+  <rect x="620" y="560" width="200" height="48" rx="8" fill="#1a1d26" stroke="#f87171"/>
+  <text x="720" y="590" text-anchor="middle" fill="#fecaca" font-size="11">trades.store (snapshots)</text>
+
+  <rect x="220" y="560" width="160" height="48" rx="8" fill="#1a1d26" stroke="#6b7280"/>
+  <text x="300" y="590" text-anchor="middle" fill="#d1d5db" font-size="11">ticker.store</text>
+
+  <!-- Arrows WS to panels -->
+  <path d="M 420 188 L 300 340" fill="none" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="330" y="260" fill="#6b7280" font-size="9">v2/ticker</text>
+
+  <path d="M 480 216 L 500 330" fill="none" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="512" y="280" fill="#4ade80" font-size="9">l2_orderbook</text>
+
+  <path d="M 540 216 L 720 330" fill="none" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="640" y="280" fill="#f87171" font-size="9">all_trades</text>
+
+  <path d="M 300 412 L 420 280" fill="none" stroke="#818cf8" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="340" y="340" fill="#a5b4fc" font-size="9">setFocusedSymbol</text>
+
+  <path d="M 480 300 L 500 330" fill="none" stroke="#818cf8" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="455" y="318" fill="#a5b4fc" font-size="9">read focus</text>
+
+  <path d="M 500 422 L 500 460" fill="none" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M 720 422 L 720 460" fill="none" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M 500 524 L 500 560" fill="none" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <path d="M 720 524 L 720 560" fill="none" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <path d="M 300 412 L 300 560" fill="none" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <rect x="40" y="640" width="880" height="64" rx="6" fill="#111318" stroke="#374151"/>
+  <text x="60" y="662" fill="#9ca3af" font-size="11">Legend:</text>
+  <rect x="120" y="650" width="12" height="12" fill="#142819" stroke="#22c55e"/>
+  <text x="140" y="661" fill="#d1d5db" font-size="10">Order book path</text>
+  <rect x="260" y="650" width="12" height="12" fill="#2a1515" stroke="#ef4444"/>
+  <text x="280" y="661" fill="#d1d5db" font-size="10">Trades path</text>
+  <rect x="400" y="650" width="12" height="12" fill="#1e1b4b" stroke="#818cf8"/>
+  <text x="420" y="661" fill="#d1d5db" font-size="10">Focus / navigation</text>
+  <text x="60" y="684" fill="#6b7280" font-size="10">Symbol change: both panels unsubscribe ’ engine.clear ’ subscribe new symbol</text>
+</svg>

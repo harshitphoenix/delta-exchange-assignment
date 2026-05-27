@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 640" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#9ca3af"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#4ade80"/>
+    </marker>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12141a"/>
+      <stop offset="100%" stop-color="#0c0e12"/>
+    </linearGradient>
+  </defs>
+  <rect width="920" height="640" fill="url(#bg)"/>
+  <text x="460" y="34" text-anchor="middle" fill="#f3f4f6" font-size="18" font-weight="600">Order Book Panel  Component Communication</text>
+  <text x="460" y="54" text-anchor="middle" fill="#9ca3af" font-size="12">features/orderbook ∑ engine í snapshot store í virtualized UI</text>
+
+  <!-- Layer labels -->
+  <text x="24" y="88" fill="#6b7280" font-size="10" font-weight="600">TRANSPORT</text>
+  <text x="24" y="188" fill="#6b7280" font-size="10" font-weight="600">PANEL</text>
+  <text x="24" y="308" fill="#6b7280" font-size="10" font-weight="600">ENGINE</text>
+  <text x="24" y="428" fill="#6b7280" font-size="10" font-weight="600">STATE</text>
+  <text x="24" y="528" fill="#6b7280" font-size="10" font-weight="600">VIEW</text>
+
+  <rect x="120" y="72" width="200" height="56" rx="8" fill="#1a1d26" stroke="#eab308" stroke-width="1.5"/>
+  <text x="220" y="96" text-anchor="middle" fill="#fde047" font-size="12" font-weight="600">StressWsClient</text>
+  <text x="220" y="114" text-anchor="middle" fill="#9ca3af" font-size="10">on('l2_orderbook') RAF batch</text>
+
+  <rect x="680" y="72" width="200" height="56" rx="8" fill="#1e1b4b" stroke="#818cf8"/>
+  <text x="780" y="96" text-anchor="middle" fill="#c7d2fe" font-size="12" font-weight="600">useFocusStore</text>
+  <text x="780" y="114" text-anchor="middle" fill="#9ca3af" font-size="10">focusedSymbol ∑ groupIncrements</text>
+
+  <rect x="340" y="168" width="240" height="80" rx="8" fill="#142819" stroke="#22c55e" stroke-width="2"/>
+  <text x="460" y="196" text-anchor="middle" fill="#86efac" font-size="14" font-weight="600">OrderBook.tsx</text>
+  <text x="460" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">subscribe / unsubscribe ∑ WS handler</text>
+  <text x="460" y="232" text-anchor="middle" fill="#6ee7b7" font-size="10">engine.process ∑ engine.reprocess</text>
+
+  <rect x="120" y="180" width="160" height="56" rx="8" fill="#1a1d26" stroke="#4ade80"/>
+  <text x="200" y="204" text-anchor="middle" fill="#bbf7d0" font-size="11" font-weight="600">GroupingSelector</text>
+  <text x="200" y="222" text-anchor="middle" fill="#9ca3af" font-size="10">setGroupIncrement</text>
+
+  <rect x="640" y="180" width="160" height="56" rx="8" fill="#1a1d26" stroke="#a78bfa"/>
+  <text x="720" y="204" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="600">symbols/config</text>
+  <text x="720" y="222" text-anchor="middle" fill="#9ca3af" font-size="10">groupOptions ∑ precision</text>
+
+  <rect x="300" y="288" width="320" height="72" rx="8" fill="#0f2418" stroke="#16a34a" stroke-width="2"/>
+  <text x="460" y="316" text-anchor="middle" fill="#86efac" font-size="13" font-weight="600">OrderBookEngine (singleton)</text>
+  <text x="460" y="336" text-anchor="middle" fill="#9ca3af" font-size="10">Map bids/asks ∑ SideAggregator ∑ computeMetrics</text>
+
+  <rect x="120" y="300" width="140" height="48" rx="6" fill="#1a1d26" stroke="#374151"/>
+  <text x="190" y="322" text-anchor="middle" fill="#d1d5db" font-size="10">aggregation.ts</text>
+  <text x="190" y="338" text-anchor="middle" fill="#6b7280" font-size="9">bucketPrice</text>
+
+  <rect x="660" y="300" width="140" height="48" rx="6" fill="#1a1d26" stroke="#374151"/>
+  <text x="730" y="322" text-anchor="middle" fill="#d1d5db" font-size="10">metrics.ts</text>
+  <text x="730" y="338" text-anchor="middle" fill="#6b7280" font-size="9">mid ∑ spread ∑ imbalance</text>
+
+  <rect x="340" y="408" width="240" height="52" rx="8" fill="#1a1d26" stroke="#4ade80"/>
+  <text x="460" y="432" text-anchor="middle" fill="#bbf7d0" font-size="12" font-weight="600">orderbook.store</text>
+  <text x="460" y="450" text-anchor="middle" fill="#9ca3af" font-size="10">setSnapshot / clearSnapshot ∑ ProcessedBook</text>
+
+  <rect x="640" y="408" width="160" height="52" rx="8" fill="#1a1d26" stroke="#6b7280"/>
+  <text x="720" y="438" text-anchor="middle" fill="#e5e7eb" font-size="11">useOrderBook</text>
+
+  <rect x="120" y="508" width="200" height="56" rx="8" fill="#1a1d26" stroke="#ef4444"/>
+  <text x="220" y="532" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">OrderBookSide (ask)</text>
+  <text x="220" y="550" text-anchor="middle" fill="#9ca3af" font-size="10">@tanstack/react-virtual</text>
+
+  <rect x="360" y="508" width="200" height="56" rx="8" fill="#1a1d26" stroke="#22c55e"/>
+  <text x="460" y="532" text-anchor="middle" fill="#86efac" font-size="11" font-weight="600">OrderBookSide (bid)</text>
+  <text x="460" y="550" text-anchor="middle" fill="#9ca3af" font-size="10">@tanstack/react-virtual</text>
+
+  <rect x="600" y="508" width="200" height="56" rx="8" fill="#1a1d26" stroke="#6b7280"/>
+  <text x="700" y="532" text-anchor="middle" fill="#e5e7eb" font-size="11" font-weight="600">SpreadMetrics</text>
+  <text x="700" y="550" text-anchor="middle" fill="#9ca3af" font-size="10">mid ∑ spread ∑ imbalance</text>
+
+  <rect x="120" y="588" width="680" height="40" rx="6" fill="#111318" stroke="#374151"/>
+  <text x="140" y="612" fill="#9ca3af" font-size="10">OrderBookRow ê snapshot levels ∑ formatPriceWithPrecision(symbol) ∑ depth bar scaleX</text>
+
+  <!-- Arrows -->
+  <line x1="220" y1="128" x2="400" y2="168" stroke="#4ade80" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="280" y="148" fill="#4ade80" font-size="9">messages[]</text>
+
+  <line x1="780" y1="128" x2="520" y2="168" stroke="#818cf8" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="780" y1="128" x2="200" y2="180" stroke="#818cf8" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <line x1="200" y1="236" x2="340" y2="200" stroke="#4ade80" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+  <line x1="720" y1="236" x2="200" y2="210" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="720" y1="236" x2="700" y2="508" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <line x1="460" y1="248" x2="460" y2="288" stroke="#4ade80" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="472" y="272" fill="#4ade80" font-size="9">groupIncrement</text>
+
+  <line x1="260" y1="348" x2="300" y2="324" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="660" y1="348" x2="620" y2="324" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <line x1="460" y1="360" x2="460" y2="408" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="472" y="388" fill="#9ca3af" font-size="9">setSnapshot</text>
+
+  <line x1="580" y1="434" x2="720" y2="434" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="720" y1="460" x2="460" y2="508" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="460" y1="460" x2="220" y2="508" stroke="#9ca3af" stroke-width="1.2" marker-end="url(#arrow)"/>
+</svg>
