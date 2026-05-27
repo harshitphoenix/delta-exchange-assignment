@@ -1,6 +1,4 @@
-import type { RawBook, RawLevel } from '@/lib/stores/orderbook/orderbook.store';
-
-const MAX_LEVELS = 25;
+import type { NormalisedBook } from '@/lib/stores/orderbook/orderbook.store';
 
 export interface ProcessedLevel {
   price: number;
@@ -18,22 +16,22 @@ export interface ProcessedBook {
   imbalance: number;
 }
 export function processBook(
-  raw: RawBook,
+  raw: NormalisedBook,
   increment: number
 ): ProcessedBook {
 
   const group = (
-    levels: RawLevel[],
+    levels: Record<number, number>,
     round: "floor" | "ceil"
   ) => {
     const map = new Map<number, number>();
-    for (const [price, size] of levels) {
+    for (const [price, size] of Object.entries(levels)) {
       let bucket = Math.ceil( (Number(price) / increment) )* increment;
       if(round === "floor"){
         bucket = Math.floor(Number(price) / increment) * increment;
       }
 
-      map.set(bucket, (map.get(bucket) ?? 0) + Number(size));
+      map.set(bucket, (map.get(bucket) ?? 0) + size);
     }
 
     return map;
@@ -44,12 +42,10 @@ export function processBook(
 
   const bids = [...bidMap.entries()]
   .sort((a, b) => b[0] - a[0])
-  .slice(0, MAX_LEVELS)
   .map(withRunningTotal());
   
   const asks = [...askMap.entries()]
   .sort((a, b) => a[0] - b[0])
-  .slice(0, MAX_LEVELS)
   .map(withRunningTotal());
   
   const bestBid = bids[0]?.price ?? 0;
