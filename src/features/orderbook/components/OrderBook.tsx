@@ -60,21 +60,6 @@ const OrderBook = () => {
     engine.reprocess(focusedSymbol, groupIncrement);
   }, [focusedSymbol, groupIncrement]);
 
-  if (!snapshot) {
-    return (
-      <section className="flex h-384 flex-col overflow-auto flex-col overflow-hidden rounded-md border border-border bg-card">
-        <header className="flex items-center justify-between border-b border-border px-4 py-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold">Order Book — {focusedSymbol}</h2>
-            <Badge className="bg-live/15 text-live hover:bg-live/15">LIVE</Badge>
-          </div>
-        </header>
-        <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-          Waiting for data…
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="flex h-384 flex-col overflow-auto rounded-md border border-border bg-card">
@@ -89,28 +74,28 @@ const OrderBook = () => {
           onChange={(v) => setGroupIncrement(focusedSymbol, v)}
         />
       </header>
-
+     { snapshot? 
       <OrderBookSide
-        symbol={focusedSymbol}
-        side="ask"
-        levels={snapshot.asks}
-        maxTotal={snapshot.maxAskTotal}
-      />
-      <div className="shrink-0">
+      symbol={focusedSymbol}
+      side="ask"
+      levels={snapshot?.asks}
+      maxTotal={snapshot?.maxAskTotal}
+      />: <div className='h-96 flex items-center justify-center text-muted-foreground'>Waiting for data…</div>}
+      <div>
         <SpreadMetrics
           symbol={focusedSymbol}
-          mid={snapshot.mid}
-          spread={snapshot.spread}
-          spreadBps={snapshot.spreadBps}
-          imbalance={snapshot.imbalance}
-        />
+          mid={snapshot?.mid}
+          spread={snapshot?.spread}
+          spreadBps={snapshot?.spreadBps}
+          imbalance={snapshot?.imbalance}
+          />
       </div>
-      <OrderBookSide
+      {snapshot?<OrderBookSide
         symbol={focusedSymbol}
         side="bid"
         levels={snapshot.bids}
         maxTotal={snapshot.maxBidTotal}
-      />
+        />: <div className='h-96 flex items-center justify-center text-muted-foreground'>Waiting for data…</div>}
     </section>
   );
 };
