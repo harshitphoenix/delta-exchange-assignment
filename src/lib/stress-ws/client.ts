@@ -60,7 +60,9 @@ export class StressWsClient {
       this.registry.set(channel, set);
     }
     symbols.forEach(s => set!.add(s));
-    this.flushSubscription();
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+
+    this.ws.send(JSON.stringify({ type: 'subscribe', payload: { channels: [{ name: channel, symbols }] } }));
   }
 
   unsubscribe(channel: ChannelName, symbols: string[]): void {
