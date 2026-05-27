@@ -2,15 +2,18 @@ import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { ProcessedLevel, } from '../engine/types';
 import type { Side } from '../types';
+import { SYMBOL_CONFIG, type TradingSymbol } from '@/lib/symbols/config';
 import OrderBookRow from './OrderBookRow';
 
 interface OrderBookSideProps {
+  symbol: TradingSymbol;
   side: Side;
   levels: ProcessedLevel[];
   maxTotal: number;
 }
 
-export function OrderBookSide({ side, levels, maxTotal }: OrderBookSideProps) {
+export function OrderBookSide({ symbol, side, levels, maxTotal }: OrderBookSideProps) {
+  const baseName = SYMBOL_CONFIG[symbol].baseName;
   const parentRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
@@ -25,13 +28,13 @@ export function OrderBookSide({ side, levels, maxTotal }: OrderBookSideProps) {
   const header = isBid ? (
     <>
       <span>Price (USD)</span>
-      <span className="text-center">Size (BTC)</span>
-      <span className="text-right">Total (BTC)</span>
+      <span className="text-center">Size ({baseName})</span>
+      <span className="text-right">Total ({baseName})</span>
     </>
   ) : (
     <>
-      <span>Total (BTC)</span>
-      <span className="text-center">Size (BTC)</span>
+      <span>Total ({baseName})</span>
+      <span className="text-center">Size ({baseName})</span>
       <span className="text-right">Price (USD)</span>
     </>
   );
@@ -58,6 +61,7 @@ export function OrderBookSide({ side, levels, maxTotal }: OrderBookSideProps) {
                 }}
               >
                 <OrderBookRow
+                  symbol={symbol}
                   price={level.price}
                   size={level.size}
                   total={level.total}

@@ -1,20 +1,28 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+import {
+  getGroupOptions,
+  SYMBOL_CONFIG,
+  type TradingSymbol,
+} from '@/lib/symbols/config';
+import { formatGroupIncrementLabel } from '@/lib/format';
 import type { GroupIncrement } from '../types';
 
-const OPTIONS: GroupIncrement[] = [1, 5, 10, 50, 100, 500];
-
 interface GroupingSelectorProps {
+  symbol: TradingSymbol;
   value: GroupIncrement;
   onChange: (value: GroupIncrement) => void;
 }
 
-function GroupingSelector({ value, onChange }: GroupingSelectorProps) {
+function GroupingSelector({ symbol, value, onChange }: GroupingSelectorProps) {
+  const options = useMemo(() => getGroupOptions(symbol), [symbol]);
+  const pricePrecision = SYMBOL_CONFIG[symbol].pricePrecision;
+
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-muted-foreground">Group:</span>
-      <div className="flex items-center gap-1">
-        {OPTIONS.map((opt) => {
-          const active = opt === value;
+      <div className="flex flex-wrap items-center gap-1">
+        {options.map((opt) => {
+          const active = Math.abs(opt - value) < 1e-12;
           return (
             <button
               key={opt}
@@ -26,7 +34,7 @@ function GroupingSelector({ value, onChange }: GroupingSelectorProps) {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {opt}
+              {formatGroupIncrementLabel(opt, pricePrecision)}
             </button>
           );
         })}
@@ -35,4 +43,4 @@ function GroupingSelector({ value, onChange }: GroupingSelectorProps) {
   );
 }
 
-export default memo(GroupingSelector)
+export default memo(GroupingSelector);

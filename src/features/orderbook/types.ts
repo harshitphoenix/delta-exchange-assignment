@@ -16,4 +16,5 @@ export interface OrderBookSnapshot {
   imbalance: number;
 }
 
-export type GroupIncrement = 1 | 5 | 10 | 50 | 100 | 500;
+/** Order book price bucket size for the focused symbol. */
+export type GroupIncrement = number;

@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { StressWsClient } from '@/lib/stress-ws/client';
 import { useFocusStore } from '@/lib/stores/focus/focus.store';
@@ -6,22 +6,31 @@ import { setGroupIncrement } from '@/lib/stores/focus/focus.actions';
 import { OrderBookEngine } from '../engine/OrderBookEngine';
 import { useOrderBook } from '../hooks/useOrderBook';
 import type { RawBook } from '../engine/types';
-import type { GroupIncrement } from '../types';
 import GroupingSelector from './GroupingSelector';
 import { OrderBookSide } from './OrderBookSide';
 import { SpreadMetrics } from './SpreadMetrics';
-import type { TradingSymbol } from '@/lib/symbols/config';
+import {
+  resolveGroupIncrement,
+  type TradingSymbol,
+} from '@/lib/symbols/config';
 
 const engine = OrderBookEngine.getInstance();
 
 const OrderBook = () => {
   const focusedSymbol = useFocusStore((s) => s.focusedSymbol);
-  const groupIncrement = (useFocusStore((s) => s.groupIncrements[focusedSymbol]) ?? 1) as GroupIncrement;
+  const storedIncrement = useFocusStore((s) => s.groupIncrements[focusedSymbol]);
+  const groupIncrement = resolveGroupIncrement(focusedSymbol, storedIncrement);
   const snapshot = useOrderBook(focusedSymbol);
 
-  // Keep a ref so the RAF-batched WS handler always reads the latest increment
-  const groupIncrementRef = useRef(groupIncrement);
-  useEffect(() => { groupIncrementRef.current = groupIncrement; }, [groupIncrement]);
+  // Clear invalid persisted increments (e.g. after symbol or config change)
+  useEffect(() => {
+    if (
+      storedIncrement !== undefined &&
+      storedIncrement !== groupIncrement
+    ) {
+      setGroupIncrement(focusedSymbol, groupIncrement);
+    }
+  }, [focusedSymbol, storedIncrement, groupIncrement]);
 
   useEffect(function subscribeToOrderBook() {
     const client = StressWsClient.getInstance();
@@ -37,14 +46,14 @@ const OrderBook = () => {
           asks: msg.asks as RawBook['asks'],
         });
       }
-      if (rawBooks.length) engine.process(rawBooks, groupIncrementRef.current);
+      if (rawBooks.length) engine.process(rawBooks, groupIncrement);
     });
     return () => {
       client.unsubscribe('l2_orderbook', [focusedSymbol]);
       engine.clear(focusedSymbol);
       removeHandler();
     };
-  }, [focusedSymbol]);
+  }, [focusedSymbol, groupIncrement]);
 
   // Re-aggregate when grouping changes (symbol change is handled by subscribeToOrderBook)
   useEffect(() => {
@@ -75,21 +84,33 @@ const OrderBook = () => {
           <Badge className="bg-live/15 text-live hover:bg-live/15">LIVE</Badge>
         </div>
         <GroupingSelector
+          symbol={focusedSymbol}
           value={groupIncrement}
           onChange={(v) => setGroupIncrement(focusedSymbol, v)}
         />
       </header>
 
-      <OrderBookSide side="ask" levels={snapshot.asks} maxTotal={snapshot.maxAskTotal} />
+      <OrderBookSide
+        symbol={focusedSymbol}
+        side="ask"
+        levels={snapshot.asks}
+        maxTotal={snapshot.maxAskTotal}
+      />
       <div className="shrink-0">
         <SpreadMetrics
+          symbol={focusedSymbol}
           mid={snapshot.mid}
           spread={snapshot.spread}
           spreadBps={snapshot.spreadBps}
           imbalance={snapshot.imbalance}
         />
       </div>
-      <OrderBookSide side="bid" levels={snapshot.bids} maxTotal={snapshot.maxBidTotal} />
+      <OrderBookSide
+        symbol={focusedSymbol}
+        side="bid"
+        levels={snapshot.bids}
+        maxTotal={snapshot.maxBidTotal}
+      />
     </section>
   );
 };

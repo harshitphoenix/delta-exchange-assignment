@@ -58,3 +58,14 @@ export function formatChangePercent(value: number): string {
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
 }
+
+/** Label for order book grouping buttons (avoids scientific notation for tiny steps). */
+export function formatGroupIncrementLabel(value: number, pricePrecision: number): string {
+  if (Number.isInteger(value)) {
+    return value.toLocaleString('en-US');
+  }
+  const decimals = value.toString().includes('e')
+    ? pricePrecision
+    : (value.toString().split('.')[1]?.length ?? pricePrecision);
+  return formatPriceWithPrecision(value, decimals);
+}
